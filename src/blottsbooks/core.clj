@@ -1,5 +1,5 @@
 (ns blottsbooks.core
-  (:require [blottsbooks.pricing])
+  (:require [blottsbooks.pricing :as pricing])
   (:gen-class))
 
 ;(defn default-main
@@ -16,8 +16,7 @@
   "Executable entry point"
   []
   (say-welcome "Blott's Books")
-  (println
-    (blottsbooks.pricing/discount-price {:title "Emma" :price 9.99})))
+  (print (pricing/discount-price { :title "Emma", :price 9.99}) "\n"))
 
 (defn print-greeting
   "Use a different greeting for preferred customers."
