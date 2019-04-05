@@ -1,14 +1,14 @@
 ;; Getting Clojure by Russ Olsen
 
-;; Chapter 1 Hello, Clojure
+; ; Chapter 1 Hello, Clojure
   ; Run lein REPL
-  $ lein
+; $ lein
   ; Type quit to exit
 
   ; Create and run new project
-  $ ​​lein​​ ​​new​​ ​​app​​ ​​blottsbooks​
-  $ cd blottsbooks
-  $ ​​lein​​ ​​run​
+; $ ​​lein​​ ​​new​​ ​​app​​ ​​blottsbooks​
+; $ cd blottsbooks
+; $ ​​lein​​ ​​run​
 
   ; increment 
   (inc 1)  ; returns 2
@@ -747,4 +747,84 @@
   (ns-map (find-ns ​'user​)) ​; Includes all the predefined vars.​
   (ns-map ​'user​)           ; shorter form of previous
 
+  ; This will return "pricing"
   ​(namespace ​'pricing/discount-print​)
+
+  ; Keywords also have room for a namespace, which you can add by either 
+  ; explicitly calling out the namespace:
+​ 	:blottsbooks.pricing/author
+
+  ; or by doubling up the colon in the front of the keywork
+  ; which will pick up the current namespace. Adding a namespace to a keyword 
+  ; is mainly about preventing keyword collisions. Thus if you are worried that your
+  ; :book may be confused with someone else’s :book, you can always slap an extra colon on it
+​ 	::author
+
+  ; After Clojure creates a new namespace, it does the equivalent of this:
+​ 	(require '[clojure.core :refer :all])
+
+  ; To see all the contents of clojure.core run this
+  (ns-map ​'clojure.core​)
+
+  ; Namespaces have no heirarchy. Clojure sees clojure.core and clojure.core.data
+  ; as independent, unrelated entities.
+
+  ; After making changes to a required namespace, the namespace must be reloaded
+  ; for the changes to be in scope.
+  (require :reload '[blottsbooks.pricing :as pricing])
+
+  ; The previous contents of the namespace are still in scope unless you force
+  ; namespace symbols to be unloaded from memory by unmapping it.
+  (ns-unmap ​'blottsbooks.pricing​ ​'discount-price​)
+
+  ; To prevent symbols from being re-evaluated when a namespace is reloaded use
+  ;; Just set some-value the first time.​
+​ 	(defonce some-value (function-with-side-effects))
+
+  ; To force a defonce symbol to be reloaded use
+  (ns-unmap *ns* ​'some-value​)
+
+
+;;  Chapter 10 Sequences
+
+  ; One Thing After Another - sequence adaptor
+  ​(def​ title-seq (seq [​"Emma"​ ​"Oliver Twist"​ ​"Robinson Crusoe"​]))
+  ; returns sequence (​"Emma"​ ​"Oliver Twist"​ ​"Robinson Crusoe"​) this NOT a list
+
+  (seq {:title ​"Emma"​, :author ​"Austen"​, :published 1815})
+  ; returns ([:title ​"Emma"​] [:author ​"Austen"​] [:published 1815])
+
+  (seq (seq [​"Red Queen"​ ​"The Nightingale"​ ​"Uprooted"​]))
+  ; this is a no-op that returns the same sequence
+
+  ; Applying seq to an empty collection returns nil
+  ; We can use (seq collection) as a truthy value to detect empty collections
+  (seq [])   ​; Gives you nil.​​
+  (seq '())  ​; Also nil.​​
+  (seq {})   ​; Nil again.
+
+  ​; A Universal Interface
+  (first (seq '(​"Emma"​ ​"Oliver Twist"​ ​"Robinson Crusoe"​))) ; "Emma"
+  (rest (seq '(​"Emma"​ ​"Oliver Twist"​ ​"Robinson Crusoe"​)))  ; (​"Oliver Twist"​ ​"Robinson Crusoe"​)
+  (next (seq '(​"Emma"​ ​"Oliver Twist"​ ​"Robinson Crusoe"​)))  ; (​"Oliver Twist"​ ​"Robinson Crusoe"​)
+
+  (rest '())  ; ()
+  (next '())  ; nil
+
+  (cons ​"Emma"​ (seq '(​"Oliver Twist"​ ​"Robinson Crusoe"​)))  ; (​"Emma"​ ​"Oliver Twist"​ ​"Robinson Crusoe"​)
+
+  (defn​ my-count [col]
+​ 	  (​let​ [the-seq (seq col)]
+​ 	    (loop [n 0 s the-seq]
+​ 	      (​if​ (seq s)
+​ 	        (recur (inc n) (rest s))
+​ 	        n))))
+
+  ; functions like rest, next, and cons always (aside from the occasional nil) return sequences
+​ 	(rest [1 2 3])                          ​; A sequence!​
+​ 	(rest {:fname ​"Jane"​ :lname ​"Austen"​})  ​; Another sequence.​
+​ 	(next {:fname ​"Jane"​ :lname ​"Austen"​})  ​; Yet another sequence.​
+​ 	(cons 0 [1 2 3])                        ​; Still another.​
+​ 	(cons 0 #{1 2 3})                       ​; And another.​
+
+  ; A Rich Toolkit
